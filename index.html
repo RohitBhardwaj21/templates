@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Poster / Flyer Maker — Prototype</title>
+    <!-- Konva.js for canvas management -->
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <!-- FileSaver for downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --sidebar-w: 260px;
+            --right-w: 300px;
+            --top-h: 56px;
+            font-family: Inter, ui-sans-serif, system-ui, Segoe UI, Roboto, "Helvetica Neue", Arial
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0
+        }
+
+        /* .app {
+            display: grid;
+            grid-template-rows: var(--top-h) 1fr;
+            grid-template-columns: var(--sidebar-w) 1fr var(--right-w);
+            height: 100vh
+        } */
+
+
+
+        .grid-wrap-main {
+            display: grid;
+            flex-wrap: wrap;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .topbar {
+            grid-column: 1/4;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background: #ffebc4;
+            color: #de9406;
+            flex-wrap: wrap;
+        }
+
+        .topbar .brand {
+            font-weight: 700
+        }
+
+        .topbar .spacer {
+            flex: 1
+        }
+
+        #selOpacity {
+            accent-color: #de9406;
+            width: 100%;
+        }
+
+        button {
+            background: #de9406;
+            color: #fff;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer
+        }
+
+        .sidebar {
+            background: #ffebc4;
+            color: #de9406;
+            padding: 12px;
+            overflow: auto
+        }
+
+        .rightbar {
+            background: #ffebc4;
+            color: #de9406;
+            padding: 12px;
+            overflow: auto
+        }
+
+        .section {
+            margin-bottom: 12px
+        }
+
+        .btn {
+            display: block;
+            margin-bottom: 8px
+        }
+
+        .canvas-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffebc4;
+            min-width: 0px;
+        }
+
+        aside.sidebar .section button {
+            margin: 5px;
+        }
+
+        #stage-parent {
+            background: #fff;
+            box-shadow: 0 8px 30px rgba(2, 6, 23, 0.6);
+            width: 100%;
+        }
+
+        .tool-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        input[type=file] {
+            display: none
+        }
+
+        label.upload {
+            display: inline-block;
+            background: #de9406;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #1e1e1e;
+            font-weight: 600;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px
+        }
+
+        .template-card {
+            background: #fffdee;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer
+        }
+
+        .control {
+            background: #fffdee;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 8px
+        }
+
+        .control label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 6px;
+            color: #1e1e1e;
+            font-weight: 600;
+        }
+
+        input[type=color] {
+            height: 36px;
+            border: none;
+            padding: 0;
+            background: none
+        }
+
+        select,
+        input[type=number],
+        input[type=text] {
+            width: 100%;
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #123
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <div class="topbar">
+            <div class="brand">PosterMaker Prototype</div>
+            <div class="spacer"></div>
+            <button id="btnSave">Save (JSON)</button>
+            <button id="btnLoad">Load (JSON)</button>
+            <button id="btnResize">Resize</button>
+            <button id="btnExportPNG">Download PNG</button>
+            <button id="btnExportPDF">Download PDF</button>
+        </div>
+        <div class="grid-wrap-main">
+            <aside class="sidebar">
+                <div class="section">
+                    <div style="font-weight:700;margin-bottom:8px">My Uploads</div>
+                    <label class="upload">Upload Image <input id="imgUpload" type="file" accept="image/*"></label>
+                    <div id="myUploads" style="margin-top:8px"></div>
+                </div>
+
+                <div class="section">
+                    <div style="font-weight:700;margin-bottom:8px">Templates</div>
+                    <div class="templates-grid" id="templatesList"></div>
+                </div>
+
+
+
+                <div class="section">
+                    <div style="font-weight:700;margin-bottom:8px">Text</div>
+                    <div class="tool-row">
+                        <input id="textInput" type="text" placeholder="Type text and press Add" />
+                        <button id="addTextBtn">Add</button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div style="font-weight:700;margin-bottom:8px">Background</div>
+                    <div class="control">
+                        <label>Color</label>
+                        <input id="bgColor" type="color" value="#ffffff" />
+                        <label style="margin-top:8px">Or upload image</label>
+                        <label class="upload">BG Image <input id="bgUpload" type="file" accept="image/*"></label>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div style="font-weight:700;margin-bottom:8px">Layout & Tools</div>
+                    <div class="control">
+                        <button id="alignCenter">Center Selected</button>
+                        <button id="toFront">Bring Forward</button>
+                        <button id="toBack">Layer Delete</button>
+                        <div style="height:8px"></div>
+                        <button id="undoBtn">Undo</button>
+                        <button id="redoBtn">Redo</button>
+                    </div>
+                </div>
+
+            </aside>
+
+            <main class="canvas-wrap">
+                <div id="stage-parent" style="width:100%;height:1160px;">
+                    <div id="stage-container"></div>
+                </div>
+            </main>
+
+            <aside class="rightbar">
+                <div style="font-weight:700;margin-bottom:8px">Selected Element</div>
+                <div id="selControls">
+                    <div class="control">
+                        <label>Type: <span id="selType">-</span></label>
+                        <label>Opacity</label>
+                        <input id="selOpacity" type="range" min="0" max="1" step="0.01" value="1">
+                        <label>Rotate</label>
+                        <input id="selRotate" type="number" value="0">
+                        <label>Width</label>
+                        <input id="selWidth" type="number" value="100">
+                        <label>Height</label>
+                        <input id="selHeight" type="number" value="100">
+                        <div style="margin-top:8px;display:flex;gap:8px">
+                            <button id="duplicateBtn">Duplicate</button>
+                            <button id="deleteBtn">Delete</button>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <label>Effects</label>
+                        <label>Shadow Blur</label>
+                        <input id="shadowBlur" type="number" value="0">
+                        <label>Corner Radius</label>
+                        <input id="cornerRadius" type="number" value="0">
+                    </div>
+
+                    <div class="control">
+                        <label>Text Controls (if text)</label>
+                        <select id="fontSelect">
+                            <option value="Arial">Arial</option>
+                            <option value="Helvetica">Helvetica</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                        <label>Font Size</label>
+                        <input id="fontSize" type="number" value="32">
+                        <label>Color</label>
+                        <input id="fontColor" type="color" value="#000000">
+                    </div>
+                </div>
+
+                <div style="margin-top:12px;font-size:12px;color:#1e1e1e">Tips: Select an object on the canvas to edit.
+                    Use
+                    drag handles to resize and rotate. Double-click text to edit inline.</div>
+
+            </aside>
+        </div>
+    </div>
+
+    <input id="hiddenLoadJSON" type="file" accept="application/json" style="display:none" />
+    <!-- Text Edit Modal -->
+    <div id="textEditModal" style="
+  display:none; position:fixed; top:50%; left:50%; 
+  transform:translate(-50%,-50%);
+  background:#1e293b; color:#fff;
+  padding:16px; border-radius:8px; z-index:9999;
+  box-shadow:0 10px 30px rgba(0,0,0,0.6);
+">
+        <div style="margin-bottom:8px">Edit Text</div>
+        <input id="modalTextInput" type="text" style="width:250px;padding:6px;border-radius:6px;border:none;">
+        <div style="margin-top:10px; text-align:right">
+            <button id="modalSaveBtn">Save</button>
+            <button id="modalCancelBtn">Cancel</button>
+        </div>
+    </div>
+    <script>
+        // Basic poster sizes templates
+        const TEMPLATES = [
+            { id: 'A4', title: 'A4 Portrait', w: 595, h: 842 },
+            { id: 'Poster', title: 'Poster 24x36', w: 1728, h: 2480 },
+            { id: 'Instagram', title: 'Instagram 1080x1080', w: 1080, h: 1080 },
+            { id: 'Story', title: 'Instagram Story 1080x1920', w: 1080, h: 1920 }
+        ];
+
+        // Stage init
+        let stage, layer, selectedNode = null;
+        let history = [], historyIndex = -1;
+
+        function initStage(width = 820, height = 1160) {
+            const parent = document.getElementById('stage-container');
+            parent.innerHTML = '';
+            stage = new Konva.Stage({
+                container: 'stage-container',
+                width: width,
+                height: height
+            });
+            layer = new Konva.Layer();
+            stage.add(layer);
+
+            stage.on('click', (e) => {
+                if (e.target === stage) selectNode(null);
+            });
+
+            // click-select for shapes
+            stage.on('pointerdown', function (e) {
+                const shape = e.target;
+                if (shape && shape !== stage && shape.getAttr('isBackground') !== true) {
+                    selectNode(shape);
+                }
+            });
+
+            addTransformerHandlers();
+            pushHistory();
+        }
+
+        function addTransformerHandlers() {
+            // Konva Transformer for selected nodes
+            const tr = new Konva.Transformer({ rotateEnabled: true, enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'middle-left', 'middle-right', 'top-center', 'bottom-center'] });
+            layer.add(tr);
+            stage.on('dblclick', function (e) {
+                const node = e.target;
+                if (node && node.className === 'Text') {
+                    selectedNode = node;
+                    const modal = document.getElementById('textEditModal');
+                    const input = document.getElementById('modalTextInput');
+                    input.value = node.text();
+                    modal.style.display = 'block';
+
+                    // save
+                    document.getElementById('modalSaveBtn').onclick = () => {
+                        node.text(input.value);
+                        modal.style.display = 'none';
+                        layer.batchDraw();
+                        pushHistory();
+                    };
+
+                    // cancel
+                    document.getElementById('modalCancelBtn').onclick = () => {
+                        modal.style.display = 'none';
+                    };
+                }
+            });
+
+
+            function updateTransformer() {
+                if (selectedNode) {
+                    tr.nodes([selectedNode]);
+                } else {
+                    tr.nodes([]);
+                }
+                layer.batchDraw();
+            }
+
+            // expose
+            window._updateTransformer = updateTransformer;
+        }
+
+        function selectNode(node) {
+            selectedNode = node;
+            document.getElementById('selType').innerText = node ? node.className : '-';
+            if (node) {
+                document.getElementById('selOpacity').value = node.opacity();
+                document.getElementById('selRotate').value = Math.round(node.rotation());
+                document.getElementById('selWidth').value = Math.round(node.width() * (node.scaleX() || 1));
+                document.getElementById('selHeight').value = Math.round(node.height() * (node.scaleY() || 1));
+                document.getElementById('shadowBlur').value = node.shadowBlur() || 0;
+                document.getElementById('cornerRadius').value = node.radius ? node.radius() : 0;
+                // text controls
+                if (node.className === 'Text') {
+                    document.getElementById('fontSelect').value = node.fontFamily() || 'Arial';
+                    document.getElementById('fontSize').value = node.fontSize() || 32;
+                    document.getElementById('fontColor').value = node.fill() || '#000';
+                }
+            }
+            window._updateTransformer();
+        }
+
+        // create default stage
+        initStage(820, 1160);
+
+        // populate templates grid
+        const templatesList = document.getElementById('templatesList');
+        TEMPLATES.forEach(t => {
+            const el = document.createElement('div'); el.className = 'template-card'; el.innerText = t.title; el.onclick = () => applyTemplate(t);
+            templatesList.appendChild(el);
+        });
+
+        // function applyTemplate(t){
+        //   // resize stage-parent visual size to reasonable px based on width (scale down for view)
+        //   const scale = Math.min(820 / t.w, 1160 / t.h, 1);
+        //   const parent = document.getElementById('stage-parent');
+        //   parent.style.width = Math.round(t.w*scale) + 'px';
+        //   parent.style.height = Math.round(t.h*scale) + 'px';
+        //   initStage(t.w, t.h);
+        //   // add a sample background
+        //   const bg = new Konva.Rect({x:0,y:0,width:t.w,height:t.h,fill:'#ffffff',name:'background',isBackground:true});
+        //   layer.add(bg);
+        //   layer.batchDraw();
+        //   pushHistory();
+        // }
+        function applyTemplate(t) {
+            const scale = Math.min(820 / t.w, 1160 / t.h, 1);
+
+            // container resize for preview
+            const parent = document.getElementById('stage-parent');
+            parent.style.width = Math.round(t.w * scale) + 'px';
+            parent.style.height = Math.round(t.h * scale) + 'px';
+
+            initStage(t.w, t.h);
+
+            // scale stage for preview
+            stage.scale({ x: scale, y: scale });
+            stage.draw();
+
+            // add a sample background
+            const bg = new Konva.Rect({
+                x: 0, y: 0, width: t.w, height: t.h,
+                fill: '#ffffff', name: 'background', isBackground: true
+            });
+            layer.add(bg);
+            layer.batchDraw();
+            pushHistory();
+        }
+
+
+        // Image upload
+        document.getElementById('imgUpload').addEventListener('change', function (e) {
+            const file = e.target.files[0]; if (!file) return;
+            const url = URL.createObjectURL(file);
+            const imgEl = document.createElement('img'); imgEl.src = url; imgEl.style.maxWidth = '100%'; imgEl.style.marginTop = '8px';
+            imgEl.onclick = () => addImageToStage(url);
+            document.getElementById('myUploads').appendChild(imgEl);
+        });
+
+        document.getElementById('bgUpload').addEventListener('change', function (e) {
+            const file = e.target.files[0]; if (!file) return;
+            const url = URL.createObjectURL(file);
+            setBackgroundImage(url);
+        });
+
+        function addImageToStage(url) {
+            Konva.Image.fromURL(url, function (img) {
+                img.setAttrs({ x: 50, y: 50, draggable: true });
+                img.scale({ x: 0.5, y: 0.5 });
+                layer.add(img);
+                layer.batchDraw();
+                pushHistory();
+            });
+        }
+
+        function setBackgroundImage(url) {
+            Konva.Image.fromURL(url, function (img) {
+                // remove existing background
+                const existing = layer.findOne('.background');
+                if (existing) existing.destroy();
+                img.setAttrs({ x: 0, y: 0, width: stage.width(), height: stage.height(), isBackground: true });
+                img.moveToBottom();
+                layer.add(img);
+                layer.batchDraw();
+                pushHistory();
+            });
+        }
+
+        // Add text
+        document.getElementById('addTextBtn').addEventListener('click', () => {
+            const txt = document.getElementById('textInput').value || 'New Text';
+            const t = new Konva.Text({ text: txt, x: 50, y: 50, fontSize: 48, draggable: true, fill: '#000', fontFamily: 'Arial' });
+            layer.add(t); layer.batchDraw(); pushHistory();
+        });
+
+        // Selection controls
+        document.getElementById('selOpacity').addEventListener('input', (e) => { if (selectedNode) { selectedNode.opacity(parseFloat(e.target.value)); layer.batchDraw(); pushHistory(); } });
+        document.getElementById('selRotate').addEventListener('change', (e) => { if (selectedNode) { selectedNode.rotation(parseFloat(e.target.value)); layer.batchDraw(); pushHistory(); } });
+        document.getElementById('selWidth').addEventListener('change', (e) => { if (selectedNode) { const w = e.target.value; const scaleX = w / selectedNode.width(); selectedNode.scaleX(scaleX); layer.batchDraw(); pushHistory(); } });
+        document.getElementById('selHeight').addEventListener('change', (e) => { if (selectedNode) { const h = e.target.value; const scaleY = h / selectedNode.height(); selectedNode.scaleY(scaleY); layer.batchDraw(); pushHistory(); } });
+
+        document.getElementById('duplicateBtn').addEventListener('click', () => { if (!selectedNode) return; const clone = selectedNode.clone({ x: selectedNode.x() + 20, y: selectedNode.y() + 20 }); layer.add(clone); layer.batchDraw(); pushHistory(); });
+        document.getElementById('deleteBtn').addEventListener('click', () => { if (!selectedNode) return; selectedNode.destroy(); selectedNode = null; layer.batchDraw(); pushHistory(); });
+
+        document.getElementById('toFront').addEventListener('click', () => { if (selectedNode) { selectedNode.moveToTop(); layer.batchDraw(); pushHistory(); } });
+        document.getElementById('toBack').addEventListener('click', () => { if (selectedNode) { selectedNode.moveToBottom(); layer.batchDraw(); pushHistory(); } });
+        document.getElementById('alignCenter').addEventListener('click', () => { if (selectedNode) { selectedNode.x((stage.width() - (selectedNode.width() * selectedNode.scaleX())) / 2); selectedNode.y((stage.height() - (selectedNode.height() * selectedNode.scaleY())) / 2); layer.batchDraw(); pushHistory(); } });
+
+        // Text controls
+        document.getElementById('fontSelect').addEventListener('change', (e) => { if (selectedNode && selectedNode.className === 'Text') { selectedNode.fontFamily(e.target.value); layer.batchDraw(); pushHistory(); } });
+        document.getElementById('fontSize').addEventListener('change', (e) => { if (selectedNode && selectedNode.className === 'Text') { selectedNode.fontSize(parseInt(e.target.value, 10)); layer.batchDraw(); pushHistory(); } });
+        document.getElementById('fontColor').addEventListener('change', (e) => { if (selectedNode && selectedNode.className === 'Text') { selectedNode.fill(e.target.value); layer.batchDraw(); pushHistory(); } });
+
+        // Effects
+        document.getElementById('shadowBlur').addEventListener('change', (e) => { if (selectedNode) { selectedNode.shadowColor('black'); selectedNode.shadowBlur(parseInt(e.target.value, 10)); layer.batchDraw(); pushHistory(); } });
+        document.getElementById('cornerRadius').addEventListener('change', (e) => { if (selectedNode && selectedNode.className === 'Rect') { selectedNode.radius(parseInt(e.target.value, 10)); layer.batchDraw(); pushHistory(); } });
+
+        // Background color
+        document.getElementById('bgColor').addEventListener('change', (e) => {
+            const rect = layer.findOne('.background');
+            if (rect && rect.className === 'Rect') {
+                rect.fill(e.target.value); layer.batchDraw(); pushHistory();
+            } else {
+                const r = new Konva.Rect({ x: 0, y: 0, width: stage.width(), height: stage.height(), fill: e.target.value, name: 'background', isBackground: true });
+                layer.add(r); r.moveToBottom(); layer.batchDraw(); pushHistory();
+            }
+        });
+
+        // Export PNG
+        document.getElementById('btnExportPNG').addEventListener('click', () => {
+            // Save current scale
+            const oldScale = stage.scale();
+
+            // Reset scale for export
+            stage.scale({ x: 1, y: 1 });
+            stage.batchDraw();
+
+            // Export at full resolution
+            const dataURL = stage.toDataURL({ pixelRatio: 1 });
+            fetch(dataURL).then(res => res.blob()).then(blob => {
+                saveAs(blob, 'poster.png');
+            });
+
+            // Restore scale for preview
+            stage.scale(oldScale);
+            stage.batchDraw();
+        });
+
+
+        // Export PDF (simple approach using canvas image placed into PDF via browser print)
+        document.getElementById('btnExportPDF').addEventListener('click', () => {
+            const dataURL = stage.toDataURL({ mimeType: 'image/png', quality: 1 });
+            const w = window.open('about:blank', '_blank');
+            w.document.write(`<img src="${dataURL}" style="width:100%">`);
+            w.document.close();
+            w.print();
+        });
+
+        // Save/Load JSON
+        function pushHistory() {
+            // serialize
+            const json = stage.toJSON();
+            history = history.slice(0, historyIndex + 1);
+            history.push(json);
+            historyIndex = history.length - 1;
+        }
+        document.getElementById('btnSave').addEventListener('click', () => {
+            const json = stage.toJSON();
+            const blob = new Blob([json], { type: 'application/json' });
+            saveAs(blob, 'poster.json');
+        });
+        document.getElementById('btnLoad').addEventListener('click', () => { document.getElementById('hiddenLoadJSON').click(); });
+        document.getElementById('hiddenLoadJSON').addEventListener('change', (e) => {
+            const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => {
+                const str = reader.result; Konva.Node.destroyChildren(stage); Konva.Node.create(str, 'stage-container'); // recreate stage from JSON
+                // rebind
+                stage = Konva.stages[0]; layer = stage.getLayers()[0]; pushHistory();
+            }; reader.readAsText(file);
+        });
+
+        // Undo/Redo
+        document.getElementById('undoBtn').addEventListener('click', () => {
+            if (historyIndex > 0) { historyIndex--; Konva.Node.destroyChildren(stage); Konva.Node.create(history[historyIndex], 'stage-container'); stage = Konva.stages[0]; layer = stage.getLayers()[0]; }
+        });
+        document.getElementById('redoBtn').addEventListener('click', () => {
+            if (historyIndex < history.length - 1) { historyIndex++; Konva.Node.destroyChildren(stage); Konva.Node.create(history[historyIndex], 'stage-container'); stage = Konva.stages[0]; layer = stage.getLayers()[0]; }
+        });
+
+        // Resize canvas
+        document.getElementById('btnResize').addEventListener('click', () => {
+            const newW = parseInt(prompt('New width in px (e.g., 1080):', stage.width()), 10);
+            const newH = parseInt(prompt('New height in px (e.g., 1920):', stage.height()), 10);
+            if (newW && newH) {
+                stage.width(newW); stage.height(newH);
+                // adjust background
+                const bg = layer.findOne('.background');
+                if (bg) { bg.width(newW); bg.height(newH); }
+                layer.batchDraw(); pushHistory();
+            }
+        });
+
+        // basic keyboard shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete' && selectedNode) { selectedNode.destroy(); selectedNode = null; layer.batchDraw(); pushHistory(); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { document.getElementById('undoBtn').click(); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { document.getElementById('redoBtn').click(); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); document.getElementById('btnSave').click(); }
+        });
+
+        // initial sample template
+        applyTemplate(TEMPLATES[0]);
+
+        // expose pushHistory to Konva events
+        layer.on('dragend', () => { pushHistory(); });
+        layer.on('transformend', () => { pushHistory(); });
+
+    </script>
+</body>
+
+</html>
