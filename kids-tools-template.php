@@ -26,7 +26,7 @@ require FCPATH . "include/header.php";
 
     <div class="container tools-parent-container mb-5">
         <div class="tools-module-breadcrumb">
-            <a href="<?= base_url() ?>">
+            <a href="https://easyshiksha.com">
                 <svg class="breadcrumb-home-icon" width="64px" height="64px" viewBox="-1 0 19 19" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#de9406" stroke="#de9406">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                     <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
