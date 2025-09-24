@@ -51,7 +51,7 @@ require FCPATH . "../include/header.php";
             <span class="chevron"></span>
             <a href="<?= base_url() ?>kids-learning/tools">Tools</a>
             <span class="chevron"></span>
-            <a href="<?= base_url() ?>kids-learning/tools/"><!-- update --></a>
+            <span><!-- update --></span>
         </div>
         <h1 class="page-title-tools-module">
             <!-- update -->
