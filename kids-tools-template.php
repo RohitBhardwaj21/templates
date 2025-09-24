@@ -56,78 +56,13 @@ require FCPATH . "../include/header.php";
         <h1 class="page-title-tools-module">
             <!-- update -->
         </h1>
-        <!-- Decorative Stars Background -->
-        <div class="stars" id="stars"></div>
+        
 
-        <!-- Header -->
-        <header class="header">
-            <h1>Coloring Pages For Kids to color online ! 🌈</h1>
-        </header>
+        
 
-        <!-- Main Container -->
-        <div class="container">
-            <!-- Navigation Tabs -->
-            <div class="nav-tabs">
-                <button class="tab-btn active" onclick="switchCategory('unicorns')">🦄 Unicorns</button>
-                <button class="tab-btn" onclick="switchCategory('animals')">Animals</button>
-                <button class="tab-btn" onclick="switchCategory('princesses')">Princesses</button>
-                <button class="tab-btn" onclick="switchCategory('christmas')">🎄 Christmas</button>
-                <button class="tab-btn" onclick="switchCategory('transportation')">🚗 Transportation</button>
-                <button class="tab-btn" onclick="switchCategory('food')">🍕 Food</button>
-                <button class="tab-btn" onclick="switchCategory('cartoons')">Cartoons</button>
-            </div>
-            <!-- Gallery Section -->
-            <div class="gallery" id="gallery">
-                <!-- Gallery items will be added by JavaScript -->
-            </div>
-
-            <!-- Loading Animation -->
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Loading magical coloring pages...</p>
-            </div>
-            <!-- Drawing Section -->
-            <div class="drawing-section active" id="drawingSection">
-                <!-- Canvas Container -->
-                <div class="canvas-container">
-                    <canvas id="coloringCanvas" width="800" height="600"></canvas>
-                </div>
-
-                <!-- Color Palette -->
-                <div class="color-palette">
-                    <div class="palette-title">Choose Your Magic Color!</div>
-                    <div class="colors-grid" id="colorsGrid">
-                        <!-- Colors will be added by JavaScript -->
-                    </div>
-
-                    <!-- Custom Color Picker -->
-                    <div class="custom-color">
-                        <label for="colorPicker">Custom Color:</label>
-                        <input type="color" id="colorPicker" value="#FF6B6B">
-                    </div>
-
-                    <!-- Tolerance Control -->
-                    <div class="tolerance-control">
-                        <label>Fill Sensitivity:</label>
-                        <input type="range" id="toleranceSlider" min="10" max="100" value="30">
-                        <span id="toleranceValue">30</span>
-                    </div>
-                </div>
-
-                <!-- Tools Section -->
-                <div class="tools">
-                    <button class="tool-btn undo-btn" onclick="undoLastFill()">
-                        Undo
-                    </button>
-                    <button class="tool-btn clear-btn" onclick="clearAll()">
-                        Clear All
-                    </button>
-                    <button class="tool-btn download-btn" onclick="downloadImage()">
-                        💾 Download
-                    </button>
-                </div>
-            </div>
-        </div>
+        
+        
+       
 
 
     </div>
