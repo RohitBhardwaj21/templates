@@ -21,7 +21,11 @@ require FCPATH . "../include/header.php";
     <meta name="twitter:description" content="><!-- update -->">
     <meta name="twitter:image" content="https://easyshiksha.com/assets/images/ogimages/kidslearning.png">
     <link rel="stylesheet" href="<?= base_url() ?>assets/tools_kids_learning/combined-stylesheet-kl-tools.css">
-
+    <style>
+        .tools-parent-container *{
+            line-height: 1.3;
+        }
+    </style>
 </head>
 
 <body>
