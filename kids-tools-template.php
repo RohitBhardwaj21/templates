@@ -55,7 +55,7 @@ require FCPATH . "../include/header.php";
             <span class="chevron"></span>
             <a href="<?= base_url() ?>kids-learning/tools">Tools</a>
             <span class="chevron"></span>
-             <a href="<?= base_url() ?>kids-learning/tools/math-and-logic-games">Math and Logic Games</a>
+             <a href="<?= base_url() ?>kids-learning/tools/phonics-and-reading-skills">Phonics & Reading Skills</a>
             <span class="chevron"></span>
             <span><!-- update --></span>
         </div>
