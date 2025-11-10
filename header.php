@@ -4148,7 +4148,7 @@ if ($register == "success") {
 
                         setTimeout(function() {
                             $closeBtn.css('pointer-events', 'auto').css('opacity', '1');
-                        }, 10000);
+                        }, 5000);
                     }
                 }, 25000);
 
@@ -4414,7 +4414,7 @@ if ($register == "success") {
                 $("#FormRegisterNew .registerBtn").css('opacity', '0.5');
                 $("#FormRegisterNew .registerBtn").css('pointer-events', 'none');
             }
-            const otp = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+           // const otp = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
             const crmid = whatsappGenerateId();
             return new Promise((resolve, reject) => {
                 $.ajax({
@@ -4427,12 +4427,12 @@ if ($register == "success") {
                         email: $('#m_email').val(),
                         phone: $("#otpmodal #otpphonenumber").val() ? $("#otpmodal #otpphonenumber").val() : $("#newphonenumber").val(),
                         phonecode: $("#otpmodal #otpcountrycode").val() ? $("#otpmodal #otpcountrycode").val() : $("#newcountrycode").val(),
-                        otp: otp,
+                       // otp: otp,
                         crmid: crmid
                     },
                     success: function(data) {
                         if (data.code == 200) {
-                            customerotp = otp;
+                            // customerotp = otp;
                             customercrmid = crmid;
                             resolve("ok");
                         } else if (data.code == 401) {
