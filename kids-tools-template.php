@@ -25,6 +25,10 @@ require FCPATH . "../include/header.php";
         .tools-parent-container *{
             line-height: 1.3;
         }
+        div.injectionDiv{
+min-height: 400px;
+
+}
     </style>
 </head>
 
@@ -55,7 +59,7 @@ require FCPATH . "../include/header.php";
             <span class="chevron"></span>
             <a href="<?= base_url() ?>kids-learning/tools">Tools</a>
             <span class="chevron"></span>
-             <a href="<?= base_url() ?>kids-learning/tools/phonics-and-reading-skills">Phonics & Reading Skills</a>
+             <a href="<?= base_url() ?>kids-learning/tools/coding-for-kids-tools">Coding for Kids</a>
             <span class="chevron"></span>
             <span><!-- update --></span>
         </div>
